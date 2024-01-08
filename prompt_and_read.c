@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "main.h"
 
 int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 		ssize_t *read_line)
@@ -10,7 +12,7 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 	ssize_t disp_prompt;
 
 	disp_prompt = write(STDOUT_FILENO, display_prompt,
-			sizeof(display_prompt) - 1);
+			strlen(display_prompt) - 1);
 
 	if (disp_prompt == -1)
 	{
