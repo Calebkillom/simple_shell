@@ -3,23 +3,29 @@
 #include <string.h>
 #include <errno.h>
 
+int countTokens(char *input)
+{
+	int token_total = 0;
+	char *tokenCount = strtok(input, " ");
+
+	while (tokenCount != NULL)
+	{
+		token_total++;
+		tokenCount = strtok(NULL, " ");
+	}
+
+	return (token_total);
+}
+
 char **genToken(int argc, char *argv[])
 {
 	int i = 0;
-	int token_total = 0;
+	int tokenTotal = countTokens(argv[1]);
 
 	if (argc < 2)
 	{
 		perror("Please Enter your Input!");
 		exit(EXIT_FAILURE);
-	}
-
-	char *token_count = strtok(argv[1], " ");
-
-	while (token_count != NULL)
-	{
-		token_total++;
-		token_count = strtok(NULL, " ");
 	}
 
 	char **cmd_commands = (char **)malloc((token_total + 1) * sizeof(char *));
