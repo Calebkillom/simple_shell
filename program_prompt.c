@@ -15,14 +15,15 @@ int main(void)
 	while (prompt_and_read(display_prompt, &line, &len, &read_line))
 	{
 		int i;
-		char *tokenArray[2];
 		char **tokens;
 
-		tokenArray[0] = NULL;
-		tokenArray[1] = line;
-
 		/* Tokenize the input line into command and arguments */
-		tokens = genToken(2, tokenArray);
+		tokens = genToken(line);
+
+		/* Print tokens for debugging */
+		/*for (i = 0; tokens[i] != NULL; i++) {
+			printf("Token %d: %s\n", i, tokens[i]);
+        }*/
 
 		/* Execute the command with arguments */
 		process_command(tokens[0], read_line);

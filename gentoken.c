@@ -17,24 +17,25 @@ int countTokens(char *input)
 	return (token_total);
 }
 
-char **genToken(int argc, char *argv[])
+char **genToken(char *input)
 {
 	int i = 0;
-	int tokenTotal = countTokens(argv[1]);
-	char **cmd_commands = (char **)malloc((tokenTotal + 1) * sizeof(char *));
-	char *token = strtok(argv[1], " ");
+	int tokenTotal = countTokens(input);
+	char **cmd_commands, *token;
 
-	if (argc < 2)
-	{
-		perror("Please Enter your Input!");
-		exit(EXIT_FAILURE);
-	}
+	printf("Inside genToken\n");
+	printf("Input Line: %s\n", input);
+
+	cmd_commands = (char **)malloc((tokenTotal + 1) * sizeof(char *));
+	token = strtok(input, " \n");
 
 	if (cmd_commands == NULL)
 	{
 		perror("Memory Allocation failed!");
 		exit(EXIT_FAILURE);
 	}
+
+	printf("Tokens: ");
 
 	while (token != NULL)
 	{
@@ -47,6 +48,7 @@ char **genToken(int argc, char *argv[])
 		token = strtok(NULL, " ");
 		i++;
 	}
+	printf("\n");
 
 	cmd_commands[tokenTotal] = NULL;
 	return (cmd_commands);

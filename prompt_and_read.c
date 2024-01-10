@@ -43,24 +43,37 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 
 void process_command(const char *line, ssize_t read_line)
 {
-	pid_t pid = fork();
+	char *full_path = search_command(line);
+	pid_t pid;
+
+	/* check if path was found */
+	if (full_path == NULL)
+	{
+		fprintf(stderr, "Command not found: %s\n", line);
+		return;
+	}
+
+	/*fork and execute*/
+	pid = fork();
 	(void)read_line;
 
 	if (pid == -1)
 	{
 		perror("Fork failed");
+		free(full_path);
 		_exit(EXIT_FAILURE);
 	}
 	else if (pid == 0)
 	{
 		const char *command[2];
 
-		command[0] = line;
+		command[0] = full_path;
 		command[1] = NULL;
 
-		if (execve(line, (char *const *)command, NULL) == -1)
+		if (execve(full_path, (char *const *)command, NULL) == -1)
 		{
 			perror("Command not found");
+			free(full_path);
 			_exit(EXIT_FAILURE);
 		}
 	}
@@ -69,5 +82,6 @@ void process_command(const char *line, ssize_t read_line)
 		int status;
 
 		waitpid(pid, &status, 0);
+		free(full_path);
 	}
 }
