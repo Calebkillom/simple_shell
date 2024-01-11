@@ -43,13 +43,25 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 
 void process_command(const char *line, ssize_t read_line)
 {
-	char *full_path = search_command(line);
+	char **tokens = genToken(line);
+	char *full_path;
 	pid_t pid;
+
+	if (tokens == NULL || tokens[0] == NULL)
+	{
+		write(STDERR_FILENO, "Failed to tokenize command\n",
+				sizeof("Failed to tokenize command\n") - 1);
+		return;
+	}
+
+	full_path = search_command(tokens[0]);
 
 	/* check if path was found */
 	if (full_path == NULL)
 	{
-		fprintf(stderr, "Command not found: %s\n", line);
+		write(STDERR_FILENO, "Command not found\n",
+				sizeof("Command not found\n") - 1);
+		free(tokens);
 		return;
 	}
 
@@ -60,28 +72,29 @@ void process_command(const char *line, ssize_t read_line)
 	if (pid == -1)
 	{
 		perror("Fork failed");
+		free(tokens);
 		free(full_path);
 		_exit(EXIT_FAILURE);
 	}
 	else if (pid == 0)
 	{
-		const char *command[2];
-
-		command[0] = full_path;
-		command[1] = NULL;
-
-		if (execve(full_path, (char *const *)command, NULL) == -1)
+		char **command = (char **)malloc(2 * sizeof(char *));
+		if (execve(full_path, command, NULL) == -1)
 		{
-			perror("Command not found");
+			perror("Command execution failed");
+			free(tokens);
 			free(full_path);
 			_exit(EXIT_FAILURE);
 		}
+		command[0] = full_path;
+		command[1] = NULL;
 	}
 	else
 	{
 		int status;
 
 		waitpid(pid, &status, 0);
+		free(tokens);
 		free(full_path);
 	}
 }
