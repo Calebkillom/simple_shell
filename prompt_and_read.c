@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stddef.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "main.h"
@@ -40,9 +41,21 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 	}
 	return (1);
 }
-void process_command(const char *line, ssize_t read_line)
+
+size_t token_count(char **tokens)
 {
-    char **tokens = genToken(line);
+	size_t count = 0;
+
+    while (tokens[count] != NULL)
+    {
+        count++;
+    }
+
+    return count;
+}
+
+void process_command(char **tokens, ssize_t read_line)
+{
     char *full_path;
     pid_t pid;
 
@@ -60,7 +73,6 @@ void process_command(const char *line, ssize_t read_line)
     {
         write(STDERR_FILENO, "Command not found\n",
               sizeof("Command not found\n") - 1);
-        free(tokens);
         return;
     }
 
@@ -71,7 +83,6 @@ void process_command(const char *line, ssize_t read_line)
     if (pid == -1)
     {
         perror("Fork failed");
-        free(tokens);
         free(full_path);
         _exit(EXIT_FAILURE);
     }
@@ -82,20 +93,18 @@ void process_command(const char *line, ssize_t read_line)
         if (command == NULL)
         {
             perror("Memory allocation failed");
-            free(tokens);
             free(full_path);
             _exit(EXIT_FAILURE);
         }
 
-        /* Set values for command array*/
+        /* Set values for command array */
         command[0] = full_path;
         command[1] = NULL;
 
-        /* Execute the command*/
+        /* Execute the command */
         if (execve(full_path, command, NULL) == -1)
         {
             perror("Command execution failed");
-            free(tokens);
             free(full_path);
             free(command);
             _exit(EXIT_FAILURE);
@@ -105,7 +114,6 @@ void process_command(const char *line, ssize_t read_line)
     {
         int status;
         waitpid(pid, &status, 0);
-        free(tokens);
         free(full_path);
     }
 }

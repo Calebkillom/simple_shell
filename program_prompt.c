@@ -13,29 +13,31 @@ int main(void)
 	ssize_t read_line = 0;
 
 	while (prompt_and_read(display_prompt, &line, &len, &read_line))
-	{
+    {
+        char **tokens;
 		int i;
-		char **tokens;
 
-		/* Tokenize the input line into command and arguments */
-		tokens = genToken(line);
+        /* Tokenize the input line into command and arguments */
+        tokens = genToken(line);
 
-		/* Print tokens for debugging */
-		/*for (i = 0; tokens[i] != NULL; i++) {
-			printf("Token %d: %s\n", i, tokens[i]);
+        /* Print tokens for debugging */
+        /*for (i = 0; tokens[i] != NULL; i++) {
+            printf("Token %d: %s\n", i, tokens[i]);
         }*/
 
-		/* Execute the command with arguments */
-		process_command(tokens[0], read_line);
+        /* Execute the command with arguments */
+        process_command(tokens, read_line);
 
-		/* Free memory allocated for tokens */
-		for (i = 0; tokens[i] != NULL; i++)
-		{
-			free(tokens[i]);
-		}
-		free(line);
-		line = NULL;
-	}
+        /* Free memory allocated for tokens */
+        free(line);
+        line = NULL;
+
+        for (i = 0; tokens[i] != NULL; i++)
+        {
+            free(tokens[i]);
+        }
+        free(tokens);
+    }
 
 	return (0);
 }
