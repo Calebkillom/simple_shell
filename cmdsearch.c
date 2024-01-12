@@ -3,6 +3,12 @@
 #include <string.h>
 #include <errno.h>
 #include "main.h"
+/**
+ * check_absolute_path - Checks if the given command is an absolute path.
+ * @command: The command to check.
+ *
+ * Return: duplicated string If command is executable . Otherwise returns NULL.
+ */
 
 char *check_absolute_path(const char *command)
 {
@@ -15,9 +21,16 @@ char *check_absolute_path(const char *command)
 	{
 		result = strdup(path);
 	}
-	free (path);
+	free(path);
 	return (result);
 }
+
+/**
+ * search_command - Searches for full path of the given command in the PATH.
+ * @command: The command to search for.
+ *
+ * Return: dynamically allocated str with full path of command OTHERWISE  NULL.
+ */
 
 char *search_command(const char *command)
 {
