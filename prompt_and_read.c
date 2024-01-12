@@ -46,78 +46,85 @@ size_t token_count(char **tokens)
 {
 	size_t count = 0;
 
-    while (tokens[count] != NULL)
-    {
-        count++;
-    }
+	while (tokens[count] != NULL)
+	{
+		count++;
+	}
 
-    return count;
+	return (count);
 }
-void process_command(char **tokens, ssize_t read_line)
+
+void execute_command(char *full_path, char **tokens, ssize_t read_line)
 {
-    char *full_path;
 	char **command;
 	size_t i;
-    pid_t pid;
+	pid_t pid;
 
-    if (tokens == NULL || tokens[0] == NULL)
-    {
-        write(STDERR_FILENO, "Failed to tokenize command\n",
-              sizeof("Failed to tokenize command\n") - 1);
-        return;
+	pid = fork();
+	(void)read_line;
+
+	if (pid == -1)
+	{
+		perror("Fork failed");
+		free(full_path);
+		_exit(EXIT_FAILURE);
+	}
+	else if (pid == 0)
+	{
+		/* Allocate memory for command array */
+		command = (char **)malloc((token_count(tokens) + 1) * sizeof(char *));
+		if (command == NULL)
+		{
+			perror("Memory allocation failed");
+			free(full_path);
+			_exit(EXIT_FAILURE);
+		}
+
+		/* Set values for command array */
+		for (i = 0; tokens[i] != NULL; i++)
+		{
+			command[i] = tokens[i];
+		}
+		command[token_count(tokens)] = NULL;
+
+		/* Execute the command */
+		if (execve(full_path, command, NULL) == -1)
+		{
+			perror("Command execution failed");
+			free(full_path);
+			free(command);
+			_exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		int status;
+
+		waitpid(pid, &status, 0);
+		free(full_path);
     }
+}
 
-    full_path = search_command(tokens[0]);
+void process_command(char **tokens, ssize_t read_line)
+{
+	char *full_path;
 
-    /* check if path was found */
-    if (full_path == NULL)
-    {
-        write(STDERR_FILENO, "Command not found\n",
-              sizeof("Command not found\n") - 1);
-        return;
-    }
+	if (tokens == NULL || tokens[0] == NULL)
+	{
+		write(STDERR_FILENO, "Failed to tokenize command\n",
+				sizeof("Failed to tokenize command\n") - 1);
+		return;
+	}
 
-    /* fork and execute */
-    pid = fork();
-    (void)read_line;
+	full_path = search_command(tokens[0]);
 
-    if (pid == -1)
-    {
-        perror("Fork failed");
-        free(full_path);
-        _exit(EXIT_FAILURE);
-    }
-    else if (pid == 0)
-    {
-        /* Allocate memory for command array */
-        command = (char **)malloc((token_count(tokens) + 1) * sizeof(char *));
-        if (command == NULL)
-        {
-            perror("Memory allocation failed");
-            free(full_path);
-            _exit(EXIT_FAILURE);
-        }
+	/* check if path was found */
+	if (full_path == NULL)
+	{
+		write(STDERR_FILENO, "Command not found\n",
+				sizeof("Command not found\n") - 1);
+		return;
+	}
 
-        /* Set values for command array */
-        for (i = 0; tokens[i] != NULL; i++)
-        {
-            command[i] = tokens[i];
-        }
-        command[token_count(tokens)] = NULL;
-
-        /* Execute the command */
-        if (execve(full_path, command, NULL) == -1)
-        {
-            perror("Command execution failed");
-            free(full_path);
-            free(command);
-            _exit(EXIT_FAILURE);
-        }
-    }
-    else
-    {
-        int status;
-        waitpid(pid, &status, 0);
-        free(full_path);
-    }
+	execute_command(full_path, tokens, read_line);
 }
