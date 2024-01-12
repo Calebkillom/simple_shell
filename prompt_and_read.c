@@ -53,10 +53,11 @@ size_t token_count(char **tokens)
 
     return count;
 }
-
 void process_command(char **tokens, ssize_t read_line)
 {
     char *full_path;
+	char **command;
+	size_t i;
     pid_t pid;
 
     if (tokens == NULL || tokens[0] == NULL)
@@ -88,8 +89,8 @@ void process_command(char **tokens, ssize_t read_line)
     }
     else if (pid == 0)
     {
-        /*Allocate memory for command array*/
-        char **command = (char **)malloc(2 * sizeof(char *));
+        /* Allocate memory for command array */
+        command = (char **)malloc((token_count(tokens) + 1) * sizeof(char *));
         if (command == NULL)
         {
             perror("Memory allocation failed");
@@ -98,8 +99,11 @@ void process_command(char **tokens, ssize_t read_line)
         }
 
         /* Set values for command array */
-        command[0] = full_path;
-        command[1] = NULL;
+        for (i = 0; tokens[i] != NULL; i++)
+        {
+            command[i] = tokens[i];
+        }
+        command[token_count(tokens)] = NULL;
 
         /* Execute the command */
         if (execve(full_path, command, NULL) == -1)
