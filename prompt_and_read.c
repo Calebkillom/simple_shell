@@ -40,61 +40,72 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 	}
 	return (1);
 }
-
 void process_command(const char *line, ssize_t read_line)
 {
-	char **tokens = genToken(line);
-	char *full_path;
-	pid_t pid;
+    char **tokens = genToken(line);
+    char *full_path;
+    pid_t pid;
 
-	if (tokens == NULL || tokens[0] == NULL)
-	{
-		write(STDERR_FILENO, "Failed to tokenize command\n",
-				sizeof("Failed to tokenize command\n") - 1);
-		return;
-	}
+    if (tokens == NULL || tokens[0] == NULL)
+    {
+        write(STDERR_FILENO, "Failed to tokenize command\n",
+              sizeof("Failed to tokenize command\n") - 1);
+        return;
+    }
 
-	full_path = search_command(tokens[0]);
+    full_path = search_command(tokens[0]);
 
-	/* check if path was found */
-	if (full_path == NULL)
-	{
-		write(STDERR_FILENO, "Command not found\n",
-				sizeof("Command not found\n") - 1);
-		free(tokens);
-		return;
-	}
+    /* check if path was found */
+    if (full_path == NULL)
+    {
+        write(STDERR_FILENO, "Command not found\n",
+              sizeof("Command not found\n") - 1);
+        free(tokens);
+        return;
+    }
 
-	/*fork and execute*/
-	pid = fork();
-	(void)read_line;
+    /* fork and execute */
+    pid = fork();
+    (void)read_line;
 
-	if (pid == -1)
-	{
-		perror("Fork failed");
-		free(tokens);
-		free(full_path);
-		_exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		char **command = (char **)malloc(2 * sizeof(char *));
-		if (execve(full_path, command, NULL) == -1)
-		{
-			perror("Command execution failed");
-			free(tokens);
-			free(full_path);
-			_exit(EXIT_FAILURE);
-		}
-		command[0] = full_path;
-		command[1] = NULL;
-	}
-	else
-	{
-		int status;
+    if (pid == -1)
+    {
+        perror("Fork failed");
+        free(tokens);
+        free(full_path);
+        _exit(EXIT_FAILURE);
+    }
+    else if (pid == 0)
+    {
+        /*Allocate memory for command array*/
+        char **command = (char **)malloc(2 * sizeof(char *));
+        if (command == NULL)
+        {
+            perror("Memory allocation failed");
+            free(tokens);
+            free(full_path);
+            _exit(EXIT_FAILURE);
+        }
 
-		waitpid(pid, &status, 0);
-		free(tokens);
-		free(full_path);
-	}
+        /* Set values for command array*/
+        command[0] = full_path;
+        command[1] = NULL;
+
+        /* Execute the command*/
+        if (execve(full_path, command, NULL) == -1)
+        {
+            perror("Command execution failed");
+            free(tokens);
+            free(full_path);
+            free(command);
+            _exit(EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        int status;
+        waitpid(pid, &status, 0);
+        free(tokens);
+        free(full_path);
+    }
 }
