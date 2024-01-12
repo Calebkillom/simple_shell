@@ -71,7 +71,6 @@ void execute_command(char *full_path, char **tokens, ssize_t read_line)
 	}
 	else if (pid == 0)
 	{
-		/* Allocate memory for command array */
 		command = (char **)malloc((token_count(tokens) + 1) * sizeof(char *));
 		if (command == NULL)
 		{
@@ -79,15 +78,9 @@ void execute_command(char *full_path, char **tokens, ssize_t read_line)
 			free(full_path);
 			_exit(EXIT_FAILURE);
 		}
-
-		/* Set values for command array */
 		for (i = 0; tokens[i] != NULL; i++)
-		{
 			command[i] = tokens[i];
-		}
 		command[token_count(tokens)] = NULL;
-
-		/* Execute the command */
 		if (execve(full_path, command, NULL) == -1)
 		{
 			perror("Command execution failed");
@@ -102,7 +95,7 @@ void execute_command(char *full_path, char **tokens, ssize_t read_line)
 
 		waitpid(pid, &status, 0);
 		free(full_path);
-    }
+	}
 }
 
 void process_command(char **tokens, ssize_t read_line)
