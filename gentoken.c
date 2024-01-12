@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+/**
+ * genToken - Tokenizes a string into an array of strings.
+ * @input: The input string to be tokenized.
+ *
+ * Return: Array of dynamically allocated strings representing the tokens.
+ *			The last element of the array is set to NULL.
+ *
+ */
 
 char **genToken(char *input)
 {
