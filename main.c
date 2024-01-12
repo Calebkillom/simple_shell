@@ -20,11 +20,6 @@ int main(void)
         /* Tokenize the input line into command and arguments */
         tokens = genToken(line);
 
-        /* Print tokens for debugging */
-        /*for (i = 0; tokens[i] != NULL; i++) {
-            printf("Token %d: %s\n", i, tokens[i]);
-        }*/
-
         /* Execute the command with arguments */
         process_command(tokens, read_line);
 
