@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 /**
  * genToken - Tokenizes a string into an array of strings.
  * @input: The input string to be tokenized.
@@ -43,11 +44,12 @@ char **genToken(char *input)
 			exit(EXIT_FAILURE);
 		}
 		strcpy(cmd_commands[i], token);
-		printf("%s ", cmd_commands[i]);
+		write(STDOUT_FILENO, cmd_commands[i], strlen(cmd_commands[i]));
 		i++;
 		token = strtok(NULL, " \n");
 	}
 
 	cmd_commands[i] = NULL;
+	write(STDOUT_FILENO, "\n", 1);
 	return (cmd_commands);
 }

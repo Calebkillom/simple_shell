@@ -1,0 +1,75 @@
+" Disable compatibility with vi which can cause unexpected issues.
+set nocompatible
+
+" Enable type file detection. Vim will be able to try to detect the type of file in use.
+filetype on
+
+" Enable plugins and load plugin for the detected file type.
+filetype plugin on
+
+" Load an indent file for the detected file type.
+filetype indent on
+
+" Turn syntax highlighting on.
+syntax on
+
+" Add numbers to each line on the left-hand side.
+set number
+
+" Set the tab width to 4 spaces.
+set expandtab
+set tabstop=4
+set shiftwidth=4
+
+" Enable automatic indentation.
+set autoindent
+set smartindent
+
+" Highlight search results.
+set hlsearch
+
+" Highlight the current line.
+set cursorline
+
+" Set the color column to 80 characters.
+set colorcolumn=80
+
+" Set the default font size.
+set guifont=YourFont:h12
+
+" Set backspace behavior for insert mode.
+" 'indent': allow backspacing over auto-indentation
+" 'eol': allow backspacing over line breaks (join lines)
+" 'start': allow backspacing over the start of insert; CTRL-W and CTRL-U in insert mode go back to Normal mode
+set backspace=indent,eol,start
+
+" Vundle plugin manager
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'tpope/vim-sensible'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
+Plugin 'pangloss/vim-javascript'
+Plugin 'sheerun/vim-polyglot'
+Plugin 'altercation/vim-colors-solarized'
+Plugin 'vim-syntastic/syntastic'
+
+call vundle#end()
+filetype plugin indent on
+
+" Airline theme
+let g:airline_theme='dark'
+
+" Set the checkers for Syntastic.
+let g:syntastic_javascript_checkers=['standard']
+let g:syntastic_javascript_standard_exec = 'semistandard'
+
+" Enable syntax highlighting for SQL.
+au BufRead,BufNewFile *.sql setfiletype sql
+
+" Set the shell for external commands to Bash.
+" This ensures that Vim uses /bin/bash when executing shell commands.
+set shell=/bin/bash

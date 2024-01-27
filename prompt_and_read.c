@@ -21,8 +21,7 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 {
 	ssize_t disp_prompt;
 
-	disp_prompt = write(STDOUT_FILENO, display_prompt,
-			strlen(display_prompt) - 1);
+	disp_prompt = write(STDOUT_FILENO, display_prompt, strlen(display_prompt));
 
 	if (disp_prompt == -1)
 	{
@@ -47,6 +46,7 @@ int prompt_and_read(const char *display_prompt, char **line, size_t *len,
 	if (*read_line > 0 && (*line)[*read_line - 1] == '\n')
 	{
 		(*line)[*read_line - 1] = '\0';
+		*read_line = *read_line - 1;
 	}
 	return (1);
 }

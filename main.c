@@ -33,14 +33,15 @@ int main(void)
 		process_command(tokens, read_line);
 
 		/* Free memory allocated for tokens */
-		free(line);
-		line = NULL;
-
 		for (i = 0; tokens[i] != NULL; i++)
 		{
 			free(tokens[i]);
 		}
 		free(tokens);
+
+		/* Free memory allocated for line */
+		free(line);
+		line = NULL;
 	}
 
 	return (0);
